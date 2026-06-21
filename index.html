@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>D&D App — Глибока Бета</title>
+    <style>
+        /* Наша кольорова гама */
+        :root {
+            --bg-main: #0a0b10;
+            --bg-card: #131520;
+            --bg-nested: #1c1f30;
+            --accent: #ffb426;
+            --text-main: #ffffff;
+            --text-muted: #858a9f;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: system-ui, -apple-system, sans-serif; 
+            /* Вимикаємо виділення тексту для ефекту мобільного додатка */
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-main); 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+        }
+
+        /* КОНТЕЙНЕР АВТОРИЗАЦІЇ */
+        .auth-container { 
+            width: 100%; 
+            max-width: 400px; 
+            background: var(--bg-card); 
+            border-radius: 16px; 
+            padding: 24px; 
+            border: 1px solid rgba(255,255,255,0.03); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+
+        .tabs { 
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 24px; 
+            background: var(--bg-nested); 
+            padding: 4px; 
+            border-radius: 8px; 
+        }
+
+        .tab-btn { 
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            color: var(--text-muted); 
+            padding: 10px; 
+            font-weight: bold; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+        }
+
+        .tab-btn.active { 
+            background: var(--bg-card); 
+            color: var(--accent); 
+        }
+
+        .form-group { 
+            margin-bottom: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px; 
+        }
+
+        .form-group label { 
+            font-size: 0.75rem; 
+            font-weight: bold; 
+            color: var(--accent); 
+            text-transform: uppercase; 
+        }
+
+        .txt-input { 
+            background: var(--bg-nested); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            padding: 12px; 
+            border-radius: 8px; 
+            color: white; 
+            font-size: 1rem; 
+            outline: none; 
+            -webkit-user-select: text; /* Дозволяємо вводити текст */
+            user-select: text;
+        }
+
+        .btn-submit { 
+            background: var(--accent); 
+            color: black; 
+            border: none; 
+            padding: 14px; 
+            font-weight: bold; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            font-size: 0.85rem; 
+            width: 100%; 
+            margin-top: 8px; 
+        }
+
+        /* ГОЛОВНИЙ ЕКРАН (DASHBOARD) */
+        .dashboard-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            display: none; /* Спочатку прихований */
+            text-align: center;
+        }
+
+        .dashboard-container h1 {
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .welcome-msg {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .placeholder-card {
+            background: var(--bg-nested);
+            border-radius: 12px;
+            padding: 40px 20px;
+            border: 1px dashed rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Керування відображенням вікон */
+        .toggle-view { display: none; }
+        .toggle-view.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="screen-auth" class="auth-container">
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-login-btn" onclick="switchAuth('login')">Вхід</button>
+            <button class="tab-btn" id="tab-register-btn" onclick="switchAuth('register')">Реєстрація</button>
+        </div>
+
+        <div id="view-login" class="toggle-view active">
+            <div class="form-group">
+                <label>Логін</label>
+                <input type="text" id="login-username" class="txt-input" placeholder="Введіть свій email...">
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="login-password" class="txt-input" placeholder="••••••••">
+            </div>
+            <button class="btn-submit" onclick="loginAction()">Увійти у гру</button>
+        </div>
+
+        <div id="view-register" class="toggle-view">
+            <div class="form-group">
+                <label>Ім'я гравця</label>
+                <input type="text" id="reg-username" class="txt-input" placeholder="Як вас звати?">
+            </div>
+            <div class="form-group">
+                <label>Електронна пошта</label>
+                <input type="email" id="reg-email" class="txt-input" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="reg-password" class="txt-input" placeholder="Придумайте пароль">
+            </div>
+            <button class="btn-submit" onclick="loginAction()">Створити акаунт</button>
+        </div>
+    </div>
+
+    <div id="screen-dashboard" class="dashboard-container">
+        <h1>Таверна «Герої Підземелля»</h1>
+        <p class="welcome-msg">Вітаємо у глибокій беті, відважний мандрівнику!</p>
+        
+        <div class="placeholder-card">
+            🛡️ Тут незабаром з'явиться твій список персонажів та кубики. Ми будуємо цей додаток прямо зараз, функція за функцією!
+        </div>
+    </div>
+
+    <script>
+        // Перемикання вкладок Вхід / Реєстрація
+        function switchAuth(type) {
+            document.querySelectorAll('.toggle-view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            if (type === 'login') {
+                document.getElementById('view-login').classList.add('active');
+                document.getElementById('tab-login-btn').classList.add('active');
+            } else {
+                document.getElementById('view-register').classList.add('active');
+                document.getElementById('tab-register-btn').classList.add('active');
+            }
+        }
+
+        // Перехід на головний екран (імітація успішного входу)
+        function loginAction() {
+            // Ховаємо вікно авторизації
+            document.getElementById('screen-auth').style.display = 'none';
+            // Показуємо головний екран
+            document.getElementById('screen-dashboard').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
